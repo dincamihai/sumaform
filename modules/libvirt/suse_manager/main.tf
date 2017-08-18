@@ -27,6 +27,7 @@ module "suse_manager" {
   gpg_keys = "${var.gpg_keys}"
   grains = <<EOF
 
+deepsea: True
 version: ${var.version}
 cc_username: ${var.base_configuration["cc_username"]}
 cc_password: ${var.base_configuration["cc_password"]}
