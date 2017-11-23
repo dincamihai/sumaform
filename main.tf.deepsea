@@ -1,0 +1,86 @@
+provider "libvirt" {
+  uri = "qemu:///system"
+}
+
+module "base" {
+  source = "./modules/libvirt/base"
+
+  cc_username = "<username>"
+  cc_password = "<password"
+
+}
+
+module "suma3pg" {
+  source = "./modules/libvirt/suse_manager"
+  base_configuration = "${module.base.configuration}"
+  role = "suse_manager_deepsea_server"
+  name = "suma3pg"
+  image = "sles12sp1"
+  mac = "02:bf:32:7f:19:28"
+  version = "3.0-nightly"
+}
+
+module "minsles12sp1-1" {
+  source = "./modules/libvirt/deepsea"
+  base_configuration = "${module.base.configuration}"
+  role = "deepsea_minion"
+  name = "minsles12sp1-1"
+  image = "sles12sp1"
+  mac = "1e:79:fa:b2:7f:c5"
+  version = "3.1-nightly"
+  server_configuration = "${module.suma3pg.configuration}"
+}
+
+module "minsles12sp1-2" {
+  source = "./modules/libvirt/deepsea"
+  base_configuration = "${module.base.configuration}"
+  role = "deepsea_minion"
+  name = "minsles12sp1-2"
+  image = "sles12sp1"
+  mac = "72:06:38:78:c2:79"
+  version = "3.1-nightly"
+  server_configuration = "${module.suma3pg.configuration}"
+}
+
+module "minsles12sp1-3" {
+  source = "./modules/libvirt/deepsea"
+  base_configuration = "${module.base.configuration}"
+  role = "deepsea_minion"
+  name = "minsles12sp1-3"
+  image = "sles12sp1"
+  mac = "a6:ed:38:cc:94:f0"
+  version = "3.1-nightly"
+  server_configuration = "${module.suma3pg.configuration}"
+}
+
+module "minsles12sp1-4" {
+  source = "./modules/libvirt/deepsea"
+  base_configuration = "${module.base.configuration}"
+  role = "deepsea_minion"
+  name = "minsles12sp1-4"
+  image = "sles12sp1"
+  mac = "fa:97:a2:76:d6:00"
+  version = "3.1-nightly"
+  server_configuration = "${module.suma3pg.configuration}"
+}
+
+module "extraminion" {
+  source = "./modules/libvirt/minion"
+  base_configuration = "${module.base.configuration}"
+  name = "extraminion"
+  image = "sles12sp1"
+  mac = "8a:d8:0f:e5:7e:ca"
+  version = "3.1-nightly"
+  server_configuration = "${module.suma3pg.configuration}"
+}
+
+/*
+run after provisioning:
+
+$ ssh root@suma3pg.tf.local salt-key -A
+
+run this after onboarding:
+
+$ salt "md*" cmd.run "zypper mr -e -a"  # enable repositories after onboarding to suse manager
+$ chown salt:salt /var/lib/ntp/kod
+*/
